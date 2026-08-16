@@ -1,0 +1,25 @@
+# Maven build output
+target/
+
+# Compiled Java files
+*.class
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Java logs
+*.log
+
+# Environment / secrets
+.env
+*.env
+
+# Local database configuration
+application-local.properties
+application-local.yml
