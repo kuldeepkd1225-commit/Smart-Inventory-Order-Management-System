@@ -12,7 +12,6 @@ public class Order {
 
     public Order() {
     }
-
     public Order(int customerId, BigDecimal totalAmount, Timestamp orderDate) {
 
         this.customerId = customerId;

@@ -8,6 +8,9 @@ public class User{
     private String role;
     private Timestamp createdAt;
 
+    public User() {
+    }
+
     public User(String name, String email, String password, String role, Timestamp createdAt) {
         this.name = name;
         this.email = email;
@@ -59,7 +62,6 @@ public class User{
                 "userId=" + userId +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
