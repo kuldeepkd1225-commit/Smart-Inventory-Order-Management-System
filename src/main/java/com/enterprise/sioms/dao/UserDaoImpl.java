@@ -137,4 +137,29 @@ public class UserDaoImpl implements UserDao {
 
         return user;
     }
+
+    @Override
+    public User findByEmail(String email) {
+
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, email);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                if (resultSet.next()) {
+                    return mapRowToUser(resultSet);
+                }
+            }
+        }
+
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }
