@@ -16,16 +16,17 @@ public class OrderItemDaoImpl implements OrderItemDao {
     public void save(OrderItem orderItem) {
 
         String sql = "INSERT INTO order_items " +
-                "(order_id, product_id, quantity, subtotal) " +
+                "(order_id, product_id, quantity, unit_price) " +
                 "VALUES (?, ?, ?, ?)";
 
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             statement.setInt(1, orderItem.getOrderId());
             statement.setInt(2, orderItem.getProductId());
             statement.setInt(3, orderItem.getQuantity());
-            statement.setBigDecimal(4, orderItem.getSubtotal());
+            statement.setBigDecimal(4, orderItem.getUnitPrice());
 
             statement.executeUpdate();
 
@@ -37,10 +38,12 @@ public class OrderItemDaoImpl implements OrderItemDao {
     @Override
     public OrderItem findById(int id) {
 
-        String sql = "SELECT * FROM order_items WHERE order_item_id = ?";
+        String sql = "SELECT * FROM order_items " +
+                "WHERE order_item_id = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             statement.setInt(1, id);
 
@@ -66,7 +69,8 @@ public class OrderItemDaoImpl implements OrderItemDao {
         List<OrderItem> orderItems = new ArrayList<>();
 
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
+             PreparedStatement statement =
+                     connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -84,16 +88,18 @@ public class OrderItemDaoImpl implements OrderItemDao {
     public void update(OrderItem orderItem) {
 
         String sql = "UPDATE order_items SET " +
-                "order_id = ?, product_id = ?, quantity = ?, subtotal = ? " +
+                "order_id = ?, product_id = ?, " +
+                "quantity = ?, unit_price = ? " +
                 "WHERE order_item_id = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             statement.setInt(1, orderItem.getOrderId());
             statement.setInt(2, orderItem.getProductId());
             statement.setInt(3, orderItem.getQuantity());
-            statement.setBigDecimal(4, orderItem.getSubtotal());
+            statement.setBigDecimal(4, orderItem.getUnitPrice());
             statement.setInt(5, orderItem.getOrderItemId());
 
             statement.executeUpdate();
@@ -106,10 +112,12 @@ public class OrderItemDaoImpl implements OrderItemDao {
     @Override
     public void delete(int id) {
 
-        String sql = "DELETE FROM order_items WHERE order_item_id = ?";
+        String sql = "DELETE FROM order_items " +
+                "WHERE order_item_id = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             statement.setInt(1, id);
 
@@ -121,26 +129,30 @@ public class OrderItemDaoImpl implements OrderItemDao {
     }
 
     @Override
-    public void save(OrderItem orderItem, Connection connection)
-            throws SQLException {
+    public void save(
+            OrderItem orderItem,
+            Connection connection
+    ) throws SQLException {
 
         String sql = "INSERT INTO order_items " +
-                "(order_id, product_id, quantity, subtotal) " +
+                "(order_id, product_id, quantity, unit_price) " +
                 "VALUES (?, ?, ?, ?)";
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             statement.setInt(1, orderItem.getOrderId());
             statement.setInt(2, orderItem.getProductId());
             statement.setInt(3, orderItem.getQuantity());
-            statement.setBigDecimal(4, orderItem.getSubtotal());
+            statement.setBigDecimal(4, orderItem.getUnitPrice());
 
             statement.executeUpdate();
         }
     }
 
-    private OrderItem mapRowToOrderItem(ResultSet resultSet)
-            throws SQLException {
+    private OrderItem mapRowToOrderItem(
+            ResultSet resultSet
+    ) throws SQLException {
 
         OrderItem orderItem = new OrderItem();
 
@@ -160,8 +172,8 @@ public class OrderItemDaoImpl implements OrderItemDao {
                 resultSet.getInt("quantity")
         );
 
-        orderItem.setSubtotal(
-                resultSet.getBigDecimal("subtotal")
+        orderItem.setUnitPrice(
+                resultSet.getBigDecimal("unit_price")
         );
 
         return orderItem;

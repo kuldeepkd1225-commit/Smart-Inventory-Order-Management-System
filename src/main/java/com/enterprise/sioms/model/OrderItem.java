@@ -8,16 +8,21 @@ public class OrderItem {
     private int orderId;
     private int productId;
     private int quantity;
-    private BigDecimal subtotal;
+    private BigDecimal unitPrice;
 
     public OrderItem() {
     }
 
-    public OrderItem(int orderId, int productId, int quantity, BigDecimal subtotal) {
+    public OrderItem(
+            int orderId,
+            int productId,
+            int quantity,
+            BigDecimal unitPrice) {
+
         this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;
-        this.subtotal = subtotal;
+        this.unitPrice = unitPrice;
     }
 
     public int getOrderItemId() {
@@ -52,12 +57,12 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public BigDecimal getSubtotal() {
-        return subtotal;
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
     }
 
-    public void setSubtotal(BigDecimal subtotal) {
-        this.subtotal = subtotal;
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 
     @Override
@@ -67,12 +72,13 @@ public class OrderItem {
                 ", orderId=" + orderId +
                 ", productId=" + productId +
                 ", quantity=" + quantity +
-                ", subtotal=" + subtotal +
+                ", unitPrice=" + unitPrice +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) {
             return true;
         }
@@ -82,6 +88,7 @@ public class OrderItem {
         }
 
         OrderItem orderItem = (OrderItem) o;
+
         return orderItemId == orderItem.orderItemId;
     }
 

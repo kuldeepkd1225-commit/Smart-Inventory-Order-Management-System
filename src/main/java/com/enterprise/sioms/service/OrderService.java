@@ -29,40 +29,58 @@ public class OrderService {
         this.orderDao = new OrderDaoImpl();
     }
 
-    public void createOrder(Order order) throws InvalidUserException {
+    public void createOrder(Order order)
+            throws InvalidUserException {
 
         if (order.getCustomerId() <= 0) {
-            throw new InvalidUserException("Invalid customer ID");
+            throw new InvalidUserException(
+                    "Invalid customer ID"
+            );
         }
 
         if (order.getTotalAmount() == null ||
                 order.getTotalAmount().signum() <= 0) {
-            throw new IllegalArgumentException("Invalid order amount");
+
+            throw new IllegalArgumentException(
+                    "Invalid order amount"
+            );
         }
 
         orderDao.save(order);
     }
 
-    public Order getOrderById(int orderId) throws ResourceNotFoundException {
+    public Order getOrderById(int orderId)
+            throws ResourceNotFoundException {
 
         Order order = orderDao.findById(orderId);
 
         if (order == null) {
-            throw new ResourceNotFoundException("Order not found");
+            throw new ResourceNotFoundException(
+                    "Order not found"
+            );
         }
 
         return order;
     }
 
-    public void checkout(int customerId, List<CartItem> cartItems)
-            throws InvalidUserException, OutOfStockException, ResourceNotFoundException, SQLException {
+    public void checkout(
+            int customerId,
+            List<CartItem> cartItems
+    ) throws InvalidUserException,
+            OutOfStockException,
+            ResourceNotFoundException,
+            SQLException {
 
         if (customerId <= 0) {
-            throw new InvalidUserException("Invalid customer ID");
+            throw new InvalidUserException(
+                    "Invalid customer ID"
+            );
         }
 
         if (cartItems == null || cartItems.isEmpty()) {
-            throw new IllegalArgumentException("Cart cannot be empty");
+            throw new IllegalArgumentException(
+                    "Cart cannot be empty"
+            );
         }
 
         Connection connection = null;
@@ -71,9 +89,11 @@ public class OrderService {
             connection = DatabaseConnection.getConnection();
             connection.setAutoCommit(false);
 
-            OrderItemDao orderItemDao = new OrderItemDaoImpl();
+            OrderItemDao orderItemDao =
+                    new OrderItemDaoImpl();
 
-            BigDecimal totalAmount = BigDecimal.ZERO;
+            BigDecimal totalAmount =
+                    BigDecimal.ZERO;
 
             for (CartItem item : cartItems) {
 
@@ -91,53 +111,62 @@ public class OrderService {
 
                 BigDecimal subtotal =
                         item.getPrice().multiply(
-                                BigDecimal.valueOf(item.getQuantity())
+                                BigDecimal.valueOf(
+                                        item.getQuantity()
+                                )
                         );
 
-                totalAmount = totalAmount.add(subtotal);
+                totalAmount =
+                        totalAmount.add(subtotal);
             }
 
             Order order = new Order(
                     customerId,
                     totalAmount,
-                    new Timestamp(System.currentTimeMillis())
+                    new Timestamp(
+                            System.currentTimeMillis()
+                    )
             );
 
-            int orderId = orderDao.save(order, connection);
+            int orderId =
+                    orderDao.save(order, connection);
 
             for (CartItem item : cartItems) {
 
-                BigDecimal subtotal =
-                        item.getPrice().multiply(
-                                BigDecimal.valueOf(item.getQuantity())
+                Product product =
+                        findProduct(
+                                item.getProductId(),
+                                connection
                         );
-
-                Product product = findProduct(
-                        item.getProductId(),
-                        connection
-                );
 
                 if (product == null) {
                     throw new ResourceNotFoundException(
-                            "Product not found: " + item.getProductId()
+                            "Product not found: "
+                                    + item.getProductId()
                     );
                 }
 
-                if (item.getQuantity() > product.getStockQuantity()) {
+                if (item.getQuantity()
+                        > product.getStockQuantity()) {
+
                     throw new OutOfStockException(
                             "Insufficient stock for product: "
                                     + item.getProductId()
                     );
                 }
 
-                OrderItem orderItem = new OrderItem(
-                        orderId,
-                        item.getProductId(),
-                        item.getQuantity(),
-                        subtotal
-                );
+                OrderItem orderItem =
+                        new OrderItem(
+                                orderId,
+                                item.getProductId(),
+                                item.getQuantity(),
+                                item.getPrice()
+                        );
 
-                orderItemDao.save(orderItem, connection);
+                orderItemDao.save(
+                        orderItem,
+                        connection
+                );
 
                 reduceStock(
                         product,
@@ -175,44 +204,63 @@ public class OrderService {
         }
     }
 
-    private Product findProduct(int productId, Connection connection)
-            throws SQLException {
+    private Product findProduct(
+            int productId,
+            Connection connection
+    ) throws SQLException {
 
-        String sql = "SELECT product_id, product_name, category, " +
+        String sql =
+                "SELECT product_id, product_name, category, " +
                 "price, stock_quantity, updated_at " +
                 "FROM products WHERE product_id = ?";
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             statement.setInt(1, productId);
 
-            try (ResultSet resultSet = statement.executeQuery()) {
+            try (ResultSet resultSet =
+                         statement.executeQuery()) {
 
                 if (resultSet.next()) {
-                    Product product = new Product();
+
+                    Product product =
+                            new Product();
 
                     product.setProductId(
-                            resultSet.getInt("product_id")
+                            resultSet.getInt(
+                                    "product_id"
+                            )
                     );
 
                     product.setProductName(
-                            resultSet.getString("product_name")
+                            resultSet.getString(
+                                    "product_name"
+                            )
                     );
 
                     product.setCategory(
-                            resultSet.getString("category")
+                            resultSet.getString(
+                                    "category"
+                            )
                     );
 
                     product.setPrice(
-                            resultSet.getBigDecimal("price")
+                            resultSet.getBigDecimal(
+                                    "price"
+                            )
                     );
 
                     product.setStockQuantity(
-                            resultSet.getInt("stock_quantity")
+                            resultSet.getInt(
+                                    "stock_quantity"
+                            )
                     );
 
                     product.setUpdatedAt(
-                            resultSet.getTimestamp("updated_at")
+                            resultSet.getTimestamp(
+                                    "updated_at"
+                            )
                     );
 
                     return product;
@@ -229,21 +277,31 @@ public class OrderService {
             Connection connection
     ) throws SQLException {
 
-        String sql = "UPDATE products " +
+        String sql =
+                "UPDATE products " +
                 "SET stock_quantity = ?, updated_at = ? " +
                 "WHERE product_id = ?";
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
             int newStock =
-                    product.getStockQuantity() - quantity;
+                    product.getStockQuantity()
+                            - quantity;
 
             statement.setInt(1, newStock);
+
             statement.setTimestamp(
                     2,
-                    new Timestamp(System.currentTimeMillis())
+                    new Timestamp(
+                            System.currentTimeMillis()
+                    )
             );
-            statement.setInt(3, product.getProductId());
+
+            statement.setInt(
+                    3,
+                    product.getProductId()
+            );
 
             statement.executeUpdate();
         }
